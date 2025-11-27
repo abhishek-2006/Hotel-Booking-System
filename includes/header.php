@@ -1,6 +1,6 @@
 <?php
 session_start();
-$project_root = '/Hotel%20Booking%20system';
+$project_root = '/Hotel%20Management%20system';
 // Define current page to highlight active link in the navigation
 $currentPage = basename($_SERVER['PHP_SELF']);
 if (strpos($_SERVER['REQUEST_URI'], '/user/') !== false) {
