@@ -139,12 +139,12 @@ $history_result = $history_query->get_result();
         <!-- This section would be populated using $history_result (data fetched above) -->
         
         <?php if ($history_result->num_rows > 0): ?>
-             <div class="history-list mt-3">
-                 <!-- Loop through $history_result here (similar structure to active bookings, but simpler) -->
-                 <p>History content will be displayed here...</p>
-             </div>
+            <div class="history-list mt-3">
+                <!-- Loop through $history_result here (similar structure to active bookings, but simpler) -->
+                <p>History content will be displayed here...</p>
+            </div>
         <?php else: ?>
-             <p class="text-light text-center">No completed or cancelled bookings found yet.</p>
+            <p class="text-light text-center">No completed or cancelled bookings found yet.</p>
         <?php endif; ?>
     </section>
 </div>
