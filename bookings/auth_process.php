@@ -2,7 +2,6 @@
 session_start();
 $PROJECT_ROOT = '/Hotel%20Management%20system'; 
 include('../includes/config.php'); 
-date_default_timezone_set('Asia/Kolkata');
 error_reporting(E_ALL);
 
 // Ensure a POST request was made and the action is defined
@@ -85,7 +84,7 @@ elseif ($action === 'login') {
     }
 
     // AUTH-L1: Retrieve User Record
-    $stmt = $conn->prepare("SELECT user_id, password, full_name, role FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT user_id, full_name, password, role FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -94,7 +93,7 @@ elseif ($action === 'login') {
         $user = $result->fetch_assoc();
         
         // AUTH-L2: Verify Password
-        if (password_verify($password, $user['password'])) {
+        if ($password === $user['password']) {
             // AUTH-L3: Session Creation
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['full_name'] = $user['full_name'];

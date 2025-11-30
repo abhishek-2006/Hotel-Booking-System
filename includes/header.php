@@ -35,8 +35,11 @@ include('config.php');
                 <li class="<?= ($currentPage == 'rooms.php') ? 'active' : '' ?>">
                     <a href="<?= $project_root ?>/rooms.php">Rooms</a>
                 </li>
-                <li class="<?= ($currentPage == 'tables.php') ? 'active' : '' ?>">
-                    <a href="<?= $project_root ?>/tables.php">Tables</a>
+                <li class="<?= ($currentPage == 'dining.php') ? 'active' : '' ?>">
+                    <a href="<?= $project_root ?>/dining.php">Dining</a>
+                </li>
+                <li class="<?= ($currentPage == 'spa.php') ? 'active' : '' ?>">
+                    <a href="<?= $project_root ?>/spa.php">Spa</a>
                 </li>
                 <li class="<?= ($currentPage == 'about.php') ? 'active' : '' ?>">
                     <a href="<?= $project_root ?>/about.php">About Us</a>

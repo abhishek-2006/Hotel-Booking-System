@@ -40,7 +40,7 @@ include('includes/header.php');
                 <a href="<?= $PROJECT_ROOT ?>/tables.php" class="btn btn-action btn-small">Reserve a Table</a>
             </div>
             <div class="card quick-view-card">
-                <img src="assets/images/spa.jpg" alt="Rejuvenating Spa"/>
+                <img src="assets/images/spa/spa_about.jpg" alt="Rejuvenating Spa"/>
                 <h3>Rejuvenating Spa</h3>
                 <p>Indulge in our spa services designed to relax and revitalize. Book your treatments with confidence through our secure platform.</p>
                 <a href="<?= $PROJECT_ROOT ?>/spa.php" class="btn btn-action btn-small">Book a Session</a>

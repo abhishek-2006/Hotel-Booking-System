@@ -1,20 +1,18 @@
-<?php 
-// Final Confirmed Paths
-$PROJECT_ROOT = '/Hotel%20Management%20system'; 
-include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/header.php'); 
-include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/config.php'); 
+<?php
+$PROJECT_ROOT = '/Hotel Management system';
+include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/header.php');
+include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/config.php');
 
-// Check for authentication
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['error_message'] = "Please log in to view your dashboard.";
+    $_SESSION['error_message'] = "Please login to access your dashboard.";
     header('Location: ' . $PROJECT_ROOT . '/auth/login.php');
     exit;
 }
 
 $user_id = $_SESSION['user_id'];
-$user_name = $_SESSION['full_name'] ?? 'Guest'; 
+$user_name = $_SESSION['full_name'] ?? 'Guest';
 
-// Placeholder for session messages (success/error from booking_process.php)
+// --- Flash Messages ---
 $message = '';
 $message_class = '';
 if (isset($_SESSION['success_message'])) {
@@ -27,130 +25,164 @@ if (isset($_SESSION['success_message'])) {
     unset($_SESSION['error_message']);
 }
 
-// --- Fetch Active Bookings (Corrected Query using b.user_id) ---
-// This retrieves current/upcoming Room and Table bookings
+// --- Active Bookings ---
 $active_bookings_query = $conn->prepare("
-    SELECT 
-        b.booking_id, b.check_in, b.check_out, b.status, b.total_price,
-        r.room_type, r.room_no,
-        t.table_no
+    SELECT b.booking_id, b.check_in, b.check_out, b.status, b.total_price,
+           r.room_type, r.room_no,
+           t.table_no
     FROM bookings b
     LEFT JOIN rooms r ON b.room_id = r.room_id
     LEFT JOIN tables_list t ON b.table_id = t.table_id
-    WHERE b.user_id = ? AND b.status IN ('Confirmed', 'Pending')
+    WHERE b.user_id = ? AND b.status IN ('Confirmed','Pending')
     ORDER BY b.check_in ASC
 ");
 $active_bookings_query->bind_param("i", $user_id);
 $active_bookings_query->execute();
-$active_bookings_result = $active_bookings_query->get_result();
+$active_bookings = $active_bookings_query->get_result();
 
-// --- Fetch Booking History (Completed/Cancelled) ---
+// --- History ---
 $history_query = $conn->prepare("
-    SELECT booking_id, check_in, total_price, status 
+    SELECT booking_id, check_in, status, total_price
     FROM bookings
-    WHERE user_id = ? AND status IN ('Completed', 'Cancelled')
+    WHERE user_id = ? AND status IN ('Completed','Cancelled')
     ORDER BY check_in DESC LIMIT 5
 ");
 $history_query->bind_param("i", $user_id);
 $history_query->execute();
-$history_result = $history_query->get_result();
-
+$history = $history_query->get_result();
 ?>
 
+<!-- DASHBOARD UI -->
 <div class="container dashboard-page-container">
+
     <div class="dashboard-header">
-        <h1>Welcome Back, <?= htmlspecialchars($user_name); ?>!</h1>
-        <p class="lead-text">Manage your stays and reservations at The Citadel Retreat.</p>
+        <h1>Hello, <?= htmlspecialchars($user_name) ?> 👋</h1>
+        <p class="lead-text">Manage stays, dining, spa, and your profile from one place.</p>
     </div>
 
     <?php if ($message): ?>
-        <div class="alert <?= $message_class; ?> mb-4">
-            <?= htmlspecialchars($message); ?>
-        </div>
+        <div class="alert <?= $message_class ?>"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
 
-    <!-- Quick Actions and Profile Links -->
-    <section class="quick-actions grid-3">
+    <!-- QUICK ACTION GRID -->
+    <section class="quick-actions grid-4">
+
         <div class="card action-card">
-            <h3>New Booking</h3>
-            <p>Need accommodation? Find the perfect room or suite.</p>
-            <a href="<?= $PROJECT_ROOT ?>/rooms.php" class="btn btn-action btn-small">Book Room</a>
+            <h3><i class="fas fa-bed"></i> Book a Room</h3>
+            <p>Search rooms, check availability, and book instantly.</p>
+            <a href="<?= $PROJECT_ROOT ?>/rooms.php" class="btn btn-primary btn-small">Book Now</a>
         </div>
+
         <div class="card action-card">
-            <h3>Dining Reservation</h3>
-            <p>Secure your spot at The Sprout for a memorable meal.</p>
-            <a href="<?= $PROJECT_ROOT ?>/tables.php" class="btn btn-primary btn-small">Reserve Table</a>
+            <h3><i class="fas fa-utensils"></i> Dining Reservation</h3>
+            <p>Reserve a table at our premium restaurant.</p>
+            <a href="<?= $PROJECT_ROOT ?>/dining.php" class="btn btn-action btn-small">Reserve Table</a>
         </div>
+
         <div class="card action-card">
-            <h3>Manage Profile</h3>
-            <p>Update your personal information and change your password.</p>
-            <a href="<?= $PROJECT_ROOT ?>/user/profile.php" class="btn btn-secondary btn-small">Update Profile</a>
+            <h3><i class="fas fa-spa"></i> Spa Services</h3>
+            <p>Relax with our premium spa treatments.</p>
+            <a href="<?= $PROJECT_ROOT ?>/spa.php" class="btn btn-secondary btn-small">Explore Spa</a>
+        </div>
+
+        <div class="card action-card">
+            <h3><i class="fas fa-calendar-check"></i> Spa Booking</h3>
+            <p>Book a spa session (only for guests staying today).</p>
+            <a href="<?= $PROJECT_ROOT ?>/spa_booking.php" class="btn btn-primary btn-small">Book Spa</a>
+        </div>
+
+    </section>
+
+    <!-- PROFILE SECTION -->
+    <section class="profile-actions grid-3 mt-5">
+        <div class="card action-card">
+            <h3><i class="fas fa-user"></i> View Profile</h3>
+            <p>Your details, contact info & membership details.</p>
+            <a href="<?= $PROJECT_ROOT ?>/user/view_profile.php" class="btn btn-secondary btn-small">View Profile</a>
+        </div>
+
+        <div class="card action-card">
+            <h3><i class="fas fa-user-edit"></i> Update Profile</h3>
+            <p>Edit your name, email, mobile number, and password.</p>
+            <a href="<?= $PROJECT_ROOT ?>/user/update_profile.php" class="btn btn-primary btn-small">Update</a>
+        </div>
+
+        <div class="card action-card">
+            <h3><i class="fas fa-receipt"></i> Booking History</h3>
+            <p>See your past stays, payments & reservations.</p>
+            <a href="<?= $PROJECT_ROOT ?>/user/booking_history.php" class="btn btn-action btn-small">View All</a>
         </div>
     </section>
 
-    <!-- Active/Upcoming Bookings Section -->
-    <section class="active-bookings-section">
-        <h2>Your Upcoming Reservations (<?= $active_bookings_result->num_rows; ?>)</h2>
-        
-        <?php if ($active_bookings_result->num_rows > 0): ?>
+    <!-- ACTIVE BOOKINGS -->
+    <section class="active-bookings-section mt-5">
+        <h2>Upcoming Reservations (<?= $active_bookings->num_rows ?>)</h2>
+
+        <?php if ($active_bookings->num_rows > 0): ?>
             <div class="booking-list">
-                <?php while($booking = $active_bookings_result->fetch_assoc()): ?>
-                <div class="booking-card card">
-                    <div class="booking-info">
+                <?php while ($b = $active_bookings->fetch_assoc()): ?>
+                    <div class="booking-card card">
                         <h4>
-                            <i class="fas <?= $booking['room_type'] ? 'fa-bed' : 'fa-utensils'; ?>"></i>
-                            <?= $booking['room_type'] ? htmlspecialchars($booking['room_type']) . " (Room " . htmlspecialchars($booking['room_no']) . ")" : "Table " . htmlspecialchars($booking['table_no']); ?>
+                            <i class="fas <?= $b['room_type'] ? 'fa-bed' : 'fa-utensils' ?>"></i>
+                            <?= $b['room_type'] ? $b['room_type']." (Room ".$b['room_no'].")" : "Table ".$b['table_no'] ?>
                         </h4>
-                        <p>
-                            <strong>ID:</strong> #<?= $booking['booking_id']; ?> |
-                            <strong>Status:</strong> <span class="status status-<?= strtolower($booking['status']); ?>"><?= htmlspecialchars($booking['status']); ?></span>
+
+                        <p><strong>ID:</strong> #<?= $b['booking_id'] ?></p>
+                        <p><strong>Status:</strong> 
+                            <span class="status status-<?= strtolower($b['status']) ?>"><?= $b['status'] ?></span>
                         </p>
+
                         <p class="dates-info">
-                            <?php if ($booking['room_type']): ?>
-                                From <strong><?= date('M d, Y', strtotime($booking['check_in'])); ?></strong> to <strong><?= date('M d, Y', strtotime($booking['check_out'])); ?></strong>
+                            <?php if ($b['room_type']): ?>
+                                <?= date("M d, Y", strtotime($b['check_in'])) ?> → 
+                                <?= date("M d, Y", strtotime($b['check_out'])) ?>
                             <?php else: ?>
-                                Date: <strong><?= date('M d, Y', strtotime($booking['check_in'])); ?></strong>
+                                <?= date("M d, Y", strtotime($b['check_in'])) ?>
                             <?php endif; ?>
                         </p>
+
+                        <p class="price-display">₹<?= number_format($b['total_price']) ?></p>
+
+                        <div class="booking-actions">
+                            <a href="<?= $PROJECT_ROOT ?>/user/view_invoice.php?id=<?= $b['booking_id'] ?>" class="btn btn-primary btn-small">View</a>
+                            <a href="<?= $PROJECT_ROOT ?>/bookings/cancel_booking.php?id=<?= $b['booking_id'] ?>" class="btn btn-danger btn-small">Cancel</a>
+                        </div>
                     </div>
-                    <div class="booking-actions">
-                        <p class="price-display">₹<?= number_format($booking['total_price'], 2); ?></p>
-                        <a href="<?= $PROJECT_ROOT ?>/user/view_invoice.php?id=<?= $booking['booking_id']; ?>" class="btn btn-primary btn-view">View</a>
-                        <a href="<?= $PROJECT_ROOT ?>/bookings/cancel_booking.php?id=<?= $booking['booking_id']; ?>" class="btn btn-danger btn-cancel">Cancel</a>
-                    </div>
-                </div>
                 <?php endwhile; ?>
             </div>
+
         <?php else: ?>
             <div class="empty-state-card card text-center">
-                <i class="fas fa-calendar-alt fa-3x" style="color:var(--color-text-light); margin-bottom:15px;"></i>
-                <p>You have no active or pending reservations.</p>
-                <a href="<?= $PROJECT_ROOT ?>/rooms.php" class="btn btn-action">Start Planning Your Stay</a>
+                <i class="fas fa-calendar-alt fa-3x"></i>
+                <p>No active or pending bookings.</p>
+                <a href="<?= $PROJECT_ROOT ?>/rooms.php" class="btn btn-action">Book Now</a>
             </div>
         <?php endif; ?>
     </section>
 
-    <!-- Booking History Section -->
-    <section class="history-section">
+    <!-- HISTORY -->
+    <section class="history-section mt-5">
         <div class="d-flex justify-content-between align-items-center">
             <h2>Recent Booking History</h2>
-            <a href="<?= $PROJECT_ROOT ?>/user/booking_history.php" class="btn btn-secondary btn-small">View All History</a>
+            <a href="<?= $PROJECT_ROOT ?>/user/booking_history.php" class="btn btn-secondary btn-small">View All</a>
         </div>
-        <!-- This section would be populated using $history_result (data fetched above) -->
-        
-        <?php if ($history_result->num_rows > 0): ?>
-            <div class="history-list mt-3">
-                <!-- Loop through $history_result here (similar structure to active bookings, but simpler) -->
-                <p>History content will be displayed here...</p>
-            </div>
+
+        <?php if ($history->num_rows > 0): ?>
+            <ul class="history-list mt-3">
+                <?php while ($h = $history->fetch_assoc()): ?>
+                    <li class="history-item card">
+                        <strong>#<?= $h['booking_id'] ?></strong> —
+                        <?= date("M d, Y", strtotime($h['check_in'])) ?> —
+                        <span class="status status-<?= strtolower($h['status']) ?>"><?= $h['status'] ?></span> —
+                        ₹<?= number_format($h['total_price']) ?>
+                    </li>
+                <?php endwhile; ?>
+            </ul>
         <?php else: ?>
-            <p class="text-light text-center">No completed or cancelled bookings found yet.</p>
+            <p class="text-light text-center">No previous bookings found.</p>
         <?php endif; ?>
     </section>
+
 </div>
 
-<?php 
-$active_bookings_query->close();
-$history_query->close();
-include($_SERVER['DOCUMENT_ROOT'] . "{$PROJECT_ROOT}/includes/footer.php"); 
-?>
+<?php include($_SERVER['DOCUMENT_ROOT'] . "$PROJECT_ROOT/includes/footer.php"); ?>

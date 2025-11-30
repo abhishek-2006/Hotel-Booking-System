@@ -46,7 +46,7 @@ if (isset($_SESSION['error_message'])) {
             </div>
 
             <button type="submit" class="btn btn-primary btn-auth-submit">
-                SECURE LOGIN
+                LOGIN
             </button>
         </form>
 

@@ -12,9 +12,11 @@
                 <h3>Quick Links</h3>
                 <ul>
                     <li><a href="<?= $project_root ?>/index.php">Home</a></li>
+                    <li><a href="<?= $project_root ?>/rooms.php">Rooms</a></li>
+                    <li><a href="<?= $project_root ?>/dining.php">Dining</a></li>
+                    <li><a href="<?= $project_root ?>/spa.php">Spa</a></li>
                     <li><a href="<?= $project_root ?>/about.php">About Us</a></li>
                     <li><a href="<?= $project_root ?>/contact.php">Contact Us</a></li>
-                    <li><a href="<?= $project_root ?>/auth/login.php">Staff Login</a></li>
                 </ul>
             </div>
 
@@ -24,7 +26,7 @@
                     <li><a href="<?= $project_root ?>/rooms.php">View Rooms</a></li>
                     <li><a href="<?= $project_root ?>/user/book_room.php">Book a Room</a></li>
                     <li><a href="<?= $project_root ?>/user/book_table.php">Reserve a Table</a></li>
-                    <li><a href="<?= $project_root ?>/user/dashboard.php">My Dashboard</a></li>
+                    <li><a href="<?= $project_root ?>/user/spa_booking.php">Spa Services</a></li>
                 </ul>
             </div>
 
