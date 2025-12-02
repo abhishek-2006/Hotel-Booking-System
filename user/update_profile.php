@@ -1,5 +1,4 @@
 <?php
-session_start();
 $PROJECT_ROOT = '/Hotel Management system';
 include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/config.php');
 include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/header.php');
@@ -19,13 +18,14 @@ if (isset($_POST['update_profile'])) {
 
     $name = trim($_POST['full_name']);
     $phone = trim($_POST['phone']);
+    $email = trim($_POST['email']);
 
     if ($name === '' || $phone === '') {
         $message = "All fields are required.";
         $message_class = "alert-danger";
     } else {
-        $stmt = $conn->prepare("UPDATE users SET full_name = ?, phone = ? WHERE user_id = ?");
-        $stmt->bind_param("ssi", $name, $phone, $user_id);
+        $stmt = $conn->prepare("UPDATE users SET full_name = ?, email = ?, phone = ? WHERE user_id = ?");
+        $stmt->bind_param("sssi", $name, $email, $phone, $user_id);
 
         if ($stmt->execute()) {
             $_SESSION['full_name'] = $name;
@@ -57,8 +57,8 @@ $stmt->close();
         <label>Full Name</label>
         <input type="text" name="full_name" value="<?= htmlspecialchars($user['full_name']); ?>" required>
 
-        <label>Email (read-only)</label>
-        <input type="email" value="<?= htmlspecialchars($user['email']); ?>" readonly>
+        <label>Email</label>
+        <input type="email" name="email" value="<?= htmlspecialchars($user['email']); ?>" required>
 
         <label>Phone</label>
         <input type="text" name="phone" value="<?= htmlspecialchars($user['phone']); ?>" required>

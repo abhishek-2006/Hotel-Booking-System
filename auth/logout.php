@@ -21,7 +21,7 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Redirect to login page with message
-header("Location: {$PROJECT_ROOT}/index.php?logout=success");
+// Redirect to home page after logout
+header("Location: {$PROJECT_ROOT}/index.php");
 exit;
 ?>

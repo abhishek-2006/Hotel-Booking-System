@@ -17,6 +17,10 @@ if (isset($_SESSION['error_message'])) {
 }
 ?>
 
+<?php if (isset($_GET['reset_success'])): ?>
+    <div class="alert success">Password reset successfully! Please login.</div>
+<?php endif; ?>
+
 <div class="auth-page">
     <div class="auth-container">
         <div class="auth-header">

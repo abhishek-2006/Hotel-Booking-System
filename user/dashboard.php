@@ -56,7 +56,7 @@ $history = $history_query->get_result();
 <div class="container dashboard-page-container">
 
     <div class="dashboard-header">
-        <h1>Hello, <?= htmlspecialchars($user_name) ?> 👋</h1>
+        <h1>Hello, <?= htmlspecialchars($user_name) ?></h1>
         <p class="lead-text">Manage stays, dining, spa, and your profile from one place.</p>
     </div>
 

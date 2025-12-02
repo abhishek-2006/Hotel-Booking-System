@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Nov 06, 2025 at 02:41 PM
+-- Host: 127.0.0.1:3306
+-- Generation Time: Dec 02, 2025 at 11:03 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,6 +34,20 @@ CREATE TABLE `activity_logs` (
   `ip_address` varchar(45) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `activity_logs`
+--
+
+INSERT INTO `activity_logs` (`log_id`, `user_id`, `action`, `ip_address`, `created_at`) VALUES
+(1, 2, 'User registered successfully.', '::1', '2025-11-27 14:02:51'),
+(2, 2, 'User logged in successfully.', '::1', '2025-11-27 14:24:23'),
+(3, 2, 'User logged in successfully.', '::1', '2025-11-30 05:29:40'),
+(4, 2, 'User logged in successfully.', '::1', '2025-11-30 06:34:35'),
+(5, 1, 'User logged in successfully.', '::1', '2025-11-30 07:47:20'),
+(6, 1, 'User logged in successfully.', '::1', '2025-11-30 07:53:49'),
+(7, 2, 'User logged in successfully.', '::1', '2025-11-30 07:54:01'),
+(8, 2, 'User logged in successfully.', '::1', '2025-12-02 09:25:32');
 
 -- --------------------------------------------------------
 
@@ -125,12 +139,12 @@ CREATE TABLE `rooms` (
 --
 
 INSERT INTO `rooms` (`room_id`, `room_no`, `room_type`, `ac_type`, `price_per_night`, `capacity`, `description`, `image`, `status`, `created_at`) VALUES
-(1, '1', 'Economy Single Room', 'Non-AC', 3500.00, 1, 'Budget-friendly single room with essential amenities and clean comfort.', 'economy_single.jpg', 'Available', '2025-11-03 07:37:39'),
-(2, '2', 'Twin Standard Room', 'AC', 7900.00, 4, 'Cozy twin-bed setup with full amenities, ideal for families or small groups.', 'twin_standard.jpg', 'Available', '2025-11-03 07:37:39'),
-(3, '3', 'Deluxe King Suite', 'AC', 12500.00, 2, 'Spacious suite with a king bed, city view, and premium bath amenities.', 'deluxe_king.jpg', 'Available', '2025-11-03 07:37:39'),
-(4, '4', 'Business Studio', 'AC', 11000.00, 1, 'Smartly designed for business travelers — work desk, fast WiFi, and privacy.', 'business_studio.jpg', 'Available', '2025-11-03 07:37:39'),
-(5, '5', 'Family Connecting Suite', 'AC', 24000.00, 6, 'Two connected rooms with a shared living area, great for large families.', 'family_suite.jpg', 'Available', '2025-11-03 07:37:39'),
-(6, '6', 'Executive Penthouse', 'AC', 29000.00, 2, 'Luxury penthouse with panoramic views, private balcony, and concierge service.', 'executive_penthouse.jpg', 'Available', '2025-11-03 07:37:39'),
+(1, '1', 'Economy Single Room', 'Non-AC', 3500.00, 2, 'Budget-friendly single room with essential amenities and clean comfort.', 'economy_single.jpg', 'Available', '2025-11-03 07:37:39'),
+(2, '2', 'Twin Standard Room', 'AC', 6500.00, 4, 'Cozy twin-bed setup with full amenities, ideal for families or small groups.', 'twin_standard.jpg', 'Available', '2025-11-03 07:37:39'),
+(3, '3', 'Deluxe King Suite', 'AC', 10000.00, 2, 'Spacious suite with a king bed, city view, and premium bath amenities.', 'deluxe_king.jpg', 'Available', '2025-11-03 07:37:39'),
+(4, '4', 'Business Studio', 'AC', 12000.00, 2, 'Smartly designed for business travelers — work desk, fast WiFi, and privacy.', 'business_studio.jpg', 'Available', '2025-11-03 07:37:39'),
+(5, '5', 'Family Connecting Suite', 'AC', 20000.00, 6, 'Two connected rooms with a shared living area, great for large families.', 'family_suite.jpg', 'Available', '2025-11-03 07:37:39'),
+(6, '6', 'Executive Penthouse', 'AC', 26000.00, 3, 'Luxury penthouse with panoramic views, private balcony, and concierge service.', 'executive_penthouse.jpg', 'Available', '2025-11-03 07:37:39'),
 (7, '7', 'Presidential Suite', 'AC', 45000.00, 2, 'Top-tier suite with a private jacuzzi, dining area, and dedicated butler.', 'presidential_suite.jpg', 'Available', '2025-11-03 07:37:39'),
 (8, '8', 'The Imperial Grand', 'AC', 75000.00, 4, 'Includes private pool, 24/7 butler, and a secured private entrance.', 'imperial_grand.jpg', 'Available', '2025-11-03 07:37:39'),
 (9, '9', 'The Diplomat’s Arrangement', 'AC', 150000.00, 2, 'Reinforced suite with secure elevator access and counter-surveillance systems.', 'diplomat_arrangement.jpg', 'Available', '2025-11-03 07:37:39'),
@@ -162,7 +176,7 @@ CREATE TABLE `users` (
   `full_name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `phone` varchar(15) DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `role` enum('user','admin') DEFAULT 'user',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -172,7 +186,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `full_name`, `email`, `phone`, `password`, `role`, `created_at`) VALUES
-(1, 'Admin', 'admin@hotel.com', '9999999999', 'admin123', 'admin', '2025-11-03 06:01:59');
+(1, 'Admin', 'admin@hotel.com', '9999999999', 'admin123', 'admin', '2025-11-03 06:01:59'),
+(2, 'Abhishek', 'test@gmail.com', '1234567890', '123', 'user', '2025-11-27 14:02:51');
 
 --
 -- Indexes for dumped tables
@@ -244,7 +259,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `bookings`
@@ -286,7 +301,7 @@ ALTER TABLE `tables_list`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
