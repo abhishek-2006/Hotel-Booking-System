@@ -1,36 +1,90 @@
 <?php 
+// NOTE: This file is assumed to be in the project root.
+$PROJECT_ROOT = '/Hotel%20Management%20system'; 
 include('includes/header.php'); 
-include('includes/config.php');
 error_reporting(E_ALL);
 
-// Define pagination parameters
-$initial_limit = 6;
-$initial_offset = 0;
+// --- 1. RETRIEVE & SANITIZE SEARCH FILTERS ---
+// Data comes from the Homepage (GET) or the Filter bar (POST)
+$check_in = $_POST['check_in'] ?? $_GET['check_in'] ?? date('Y-m-d');
+$check_out = $_POST['check_out'] ?? $_GET['check_out'] ?? date('Y-m-d', strtotime('+1 day'));
+$guests = (int)($_POST['guests'] ?? $_GET['guests'] ?? 1);
 
-// Get total room count for checking when to stop loading
-$count_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM rooms");
-$total_rooms = mysqli_fetch_assoc($count_query)['total'];
+// Ensure dates are safe and logical
+$check_in = mysqli_real_escape_string($conn, $check_in);
+$check_out = mysqli_real_escape_string($conn, $check_out);
+$guests = max(1, $guests); 
+
+// --- 2. BUILD SQL QUERY (FETCH ALL FILTERED ROOMS) ---
+// This complex subquery finds rooms NOT currently booked for ANY day in the range.
+$filter_query_condition = "
+    r.capacity >= $guests AND
+    r.room_id NOT IN (
+        SELECT b.room_id
+        FROM bookings b
+        WHERE b.status IN ('Confirmed', 'Pending') 
+        AND b.room_id IS NOT NULL 
+        AND b.check_in < '$check_out' 
+        AND b.check_out > '$check_in'
+    ) AND r.status = 'Available'
+";
+
+$main_query = "
+    SELECT r.*
+    FROM rooms r
+    WHERE $filter_query_condition
+    ORDER BY r.price_per_night ASC
+";
+$query = mysqli_query($conn, $main_query);
+
+// Check if query failed (for debugging)
+if (!$query) {
+    error_log("Room Query Failed: " . mysqli_error($conn));
+}
 ?>
 
 <div class="container rooms-page-container">
-    <h2 class="page-title text-center">Our Available Rooms</h2>
+    <h2 class="page-title text-center">
+        Available Rooms: 
+        <span class="date-range-text"><?= date('M d, Y', strtotime($check_in)) ?> - <?= date('M d, Y', strtotime($check_out)) ?></span>
+    </h2>
 
+    <!-- Compact Search Filter Bar -->
+    <form class="search-widget compact-search-widget" action="rooms.php" method="POST">
+        <input type="hidden" name="action" value="search">
+        <div class="form-group">
+            <label for="check_in_date">Check-in</label>
+            <input type="date" id="check_in_date" name="check_in" class="form-control" value="<?= $check_in ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="check_out_date">Check-out</label>
+            <input type="date" id="check_out_date" name="check_out" class="form-control" value="<?= $check_out ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="num_guests">Guests</label>
+            <input type="number" id="num_guests" name="guests" class="form-control" value="<?= $guests ?>" min="1" required>
+        </div>
+        <button type="submit" class="btn btn-primary search-btn">
+            Filter Results
+        </button>
+    </form>
+    
     <div class="rooms-grid" id="rooms-container">
         <?php
-        $query = mysqli_query($conn, "SELECT * FROM rooms ORDER BY price_per_night ASC LIMIT $initial_limit OFFSET $initial_offset");
-        
+        $room_count = 0;
         if(mysqli_num_rows($query) > 0){
             while($row = mysqli_fetch_assoc($query)){
-                $isAvailable = $row['status'];
-                $availabilityText = $isAvailable ? 'Available' : 'Booked';
+                $isAvailable = true; 
+                $availabilityText = 'Available'; 
+                $room_count++;
         ?>
         
-        <div class="room-card card <?= !$isAvailable ? 'card-booked' : ''; ?>">
+        <div class="room-card card fade-in-card" data-delay="<?= $room_count * 0.1; ?>">
             <div class="room-image-wrapper">
-                <img src="assets/images/rooms/<?= htmlspecialchars($row['image']); ?>" 
+                <img src="<?= $PROJECT_ROOT ?>/assets/images/rooms/<?= htmlspecialchars($row['image']); ?>" 
                     alt="<?= htmlspecialchars($row['room_type']); ?> Room Image" 
                     class="room-image">
-                <span class="room-status room-status-<?= $isAvailable ? 'available' : 'booked'; ?>">
+                <span class="room-status room-status-available">
                     <?= $availabilityText; ?>
                 </span>
             </div>
@@ -48,36 +102,33 @@ $total_rooms = mysqli_fetch_assoc($count_query)['total'];
                     <strong>₹<?= number_format($row['price_per_night']); ?></strong> / night
                 </p>
                 
-                <a href="user/book_room.php?room_id=<?= $row['room_id']; ?>" 
-                    class="btn btn-action btn-full-width"
-                    
-                    <?php 
-                    // Safely output the 'disabled' attribute and inline style if NOT available
-                    if (!$isAvailable) {
-                        echo 'disabled style="pointer-events: none; opacity: 0.6;"'; 
-                    } 
-                    ?>>
-                    <?= $isAvailable ? 'Book This Room' : 'View Details'; ?>
+                <a href="<?= $PROJECT_ROOT ?>/user/book_room.php?room_id=<?= $row['room_id']; ?>&check_in=<?= $check_in; ?>&check_out=<?= $check_out; ?>&guests=<?= $guests; ?>" 
+                    class="btn btn-action btn-full-width animate-pulse-hover">
+                    Book This Room
                 </a>
             </div>
         </div>
-
         <?php 
             }
         } else {
-            echo "<p class='text-center empty-state'>We are sorry, but no rooms match your criteria or are available at the moment.</p>";
+            echo "<p class='text-center empty-state'>We are sorry, but no rooms are available for the selected criteria ($guests guests, $check_in to $check_out). Please try adjusting your dates or guest count.</p>";
         }
         ?>
     </div>
-    
-    <div class="text-center" id="loading-indicator" style="display:none; margin:20px 0;">
-        <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--color-brand);"></i>
-        <p style="color:var(--color-text-light);">Loading more rooms...</p>
-    </div>
-
-    <input type="hidden" id="room-offset" value="<?= $initial_limit; ?>">
-    <input type="hidden" id="room-total" value="<?= $total_rooms; ?>">
-    <input type="hidden" id="room-limit" value="<?= $initial_limit; ?>">
 </div>
 
-<?php include('includes/footer.php'); ?>
+<?php 
+include('includes/footer.php'); 
+?>
+
+<script>
+// --- JavaScript for Staggered Fade-In Animation on Room Cards ---
+document.addEventListener('DOMContentLoaded', function() {
+    const roomCards = document.querySelectorAll('.rooms-grid, .fade-in-card');
+    roomCards.forEach(card => {
+        const delay = card.getAttribute('data-delay') || 0;
+        card.style.animationDelay = `${delay}s`;
+        card.classList.add('animated'); // Trigger animation
+    });
+});
+</script>

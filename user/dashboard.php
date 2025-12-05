@@ -1,7 +1,6 @@
 <?php
 $PROJECT_ROOT = '/Hotel Management system';
 include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/header.php');
-include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/config.php');
 
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['error_message'] = "Please login to access your dashboard.";
@@ -28,8 +27,8 @@ if (isset($_SESSION['success_message'])) {
 // --- Active Bookings ---
 $active_bookings_query = $conn->prepare("
     SELECT b.booking_id, b.check_in, b.check_out, b.status, b.total_price,
-           r.room_type, r.room_no,
-           t.table_no
+        r.room_type, r.room_no,
+        t.table_no
     FROM bookings b
     LEFT JOIN rooms r ON b.room_id = r.room_id
     LEFT JOIN tables_list t ON b.table_id = t.table_id
@@ -98,7 +97,7 @@ $history = $history_query->get_result();
         <div class="card action-card">
             <h3><i class="fas fa-user"></i> View Profile</h3>
             <p>Your details, contact info & membership details.</p>
-            <a href="<?= $PROJECT_ROOT ?>/user/view_profile.php" class="btn btn-secondary btn-small">View Profile</a>
+            <a href="<?= $PROJECT_ROOT ?>/user/profile.php" class="btn btn-secondary btn-small">View Profile</a>
         </div>
 
         <div class="card action-card">
@@ -157,6 +156,43 @@ $history = $history_query->get_result();
                 <p>No active or pending bookings.</p>
                 <a href="<?= $PROJECT_ROOT ?>/rooms.php" class="btn btn-action">Book Now</a>
             </div>
+        <?php endif; ?>
+    </section>
+
+    <!-- Featured Menu Items Section -->
+    <section class="featured-menu-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Today's Featured Dining</h2>
+            <a href="<?= $PROJECT_ROOT ?>/menu.php" class="btn btn-action btn-small">View Full Menu</a>
+        </div>
+        
+        <?php
+        // Fetch a few featured menu items (e.g., 3 random combos or dinners)
+        $featured_query = mysqli_query($conn, "
+            SELECT * FROM food_menu 
+            WHERE food_type IN ('Dinner', 'Combo', 'Dessert') 
+            ORDER BY RAND() LIMIT 3
+        ");
+        
+        if (mysqli_num_rows($featured_query) > 0): ?>
+            <div class="menu-grid grid-3">
+                <?php while($item = mysqli_fetch_assoc($featured_query)): ?>
+                <div class="menu-item card fade-in-card" style="border-left: 3px solid var(--color-action);">
+                    <div class="item-details">
+                        <!-- Use the icon in the card -->
+                        <p class="text-light" style="font-size:0.8em; margin-bottom:0.1em;">
+                            <i class="<?= get_food_icon($item['food_type']); ?>" style="margin-right:5px;"></i>
+                            <?= htmlspecialchars($item['food_type']); ?>
+                        </p>
+                        <h3><?= htmlspecialchars($item['food_name']); ?></h3>
+                        <span class="item-price">₹<?= number_format($item['price'], 2); ?></span>
+                    </div>
+                    <button class="btn btn-primary btn-small">Add</button>
+                </div>
+            <?php endwhile; ?>
+            </div>
+        <?php else: ?>
+            <p class="text-light text-center">No featured items available today.</p>
         <?php endif; ?>
     </section>
 

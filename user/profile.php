@@ -1,7 +1,5 @@
 <?php
-session_start();
 $PROJECT_ROOT = '/Hotel Management system';
-include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/config.php');
 include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/header.php');
 
 if (!isset($_SESSION['user_id'])) {

@@ -1596,3 +1596,130 @@ section {
         color: var(--color-text-dark);
     }
 }
+
+/* 1. Keyframe Definition for Fade-In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 2. Apply Animation to Room Cards */
+.rooms-grid .fade-in-card {
+    opacity: 0; /* Start invisible */
+    animation: fadeIn 0.6s ease-out forwards;
+    margin-top: 20px;
+}
+
+/* 3. Staggered Animation Logic (Handled by JS) */
+
+/* 4. Enhanced Hover/Pulse Effect on Button */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 var(--color-action);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(244, 162, 97, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(244, 162, 97, 0);
+    }
+}
+
+.animate-pulse-hover:hover {
+    animation: pulse 1s infinite;
+    transform: translateY(-2px);
+    margin-bottom: var(--spacing-xs);
+}
+
+.date-range-text {
+    font-size: 2rem;
+    color: var(--color-brand);
+    font-weight: 400;
+}
+
+.menu-category-title {
+    font-size: 2rem;
+    color: var(--color-brand);
+    border-bottom: 2px solid var(--color-border-subtle);
+    padding-bottom: var(--spacing-xs);
+    margin-bottom: var(--spacing-lg);
+    font-family: 'Playfair Display', serif;
+}
+
+.menu-grid {
+    display: grid;
+    /* Two columns on desktop, allowing items to stretch */
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); 
+    gap: var(--spacing-md);
+}
+
+.menu-grid-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    transition: box-shadow 0.3s, transform 0.3s;
+    border-left: 5px solid var(--color-action); /* Retain brand highlight */
+    opacity: 0; 
+    animation: fadeIn 0.6s ease-out forwards; 
+}
+
+.menu-grid-item:hover {
+    transform: translateY(-3px); /* Subtle lift on hover */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.item-details-static {
+    width: 100%;
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+}
+
+.item-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--color-text-dark);
+}
+
+.item-price {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-action); /* Price stands out */
+}
+
+.item-description {
+    font-size: 0.95rem;
+    color: var(--color-text-light);
+    flex-grow: 1; /* Pushes the button to the bottom */
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Responsive adjustment: force single column on small mobile devices */
+@media (max-width: 550px) {
+    .menu-grid {
+        grid-template-columns: 1fr; 
+    }
+}
+
+/* Add or confirm the fadeIn keyframes from previous step */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

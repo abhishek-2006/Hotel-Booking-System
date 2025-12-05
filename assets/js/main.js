@@ -12,11 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Date Validation from index.php ---
     const checkInInput = document.getElementById('check_in_date');
     const checkOutInput = document.getElementById('check_out_date');
+    const guestsInput = document.getElementById('guests');
 
-    if (checkInInput && checkOutInput) {
+    if (checkInInput && checkOutInput && guestsInput) {
         const today = new Date().toISOString().split('T')[0];
         checkInInput.setAttribute('min', today);
         checkOutInput.setAttribute('min', today);
+        guestsInput.setAttribute('min', '1');
+
+        checkOutInput.addEventListener('change', function () {
+            if (checkInInput.value > this.value) {
+                checkInInput.value = this.value;
+            }
+            checkInInput.setAttribute('max', this.value);
+        });
 
         checkInInput.addEventListener('change', function () {
             if (checkOutInput.value < this.value) {
@@ -24,21 +33,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             checkOutInput.setAttribute('min', this.value);
         });
+
+        guestsInput.addEventListener('input', function () {
+            if (this.value < 1) {
+                this.value = 1;
+            }
+        });
     }
 
     // --- Dynamic Room Loading ---
     (function () {
         const offsetInput = document.getElementById('room-offset');
         const totalInput = document.getElementById('room-total');
-        const limitInput = document.getElementById('room-limit');
         const container = document.getElementById('rooms-container');
         const loadingIndicator = document.getElementById('loading-indicator');
 
-        if (!offsetInput || !totalInput || !limitInput || !container || !loadingIndicator) return;
-
+        if (!offsetInput || !totalInput || !container || !loadingIndicator) return;
         let currentOffset = parseInt(offsetInput.value);
         const totalRooms = parseInt(totalInput.value);
-        const limit = parseInt(limitInput.value);
         let isLoading = false;
 
         const loadMoreRooms = () => {
@@ -46,40 +58,33 @@ document.addEventListener('DOMContentLoaded', () => {
             isLoading = true;
             loadingIndicator.style.display = 'block';
 
+            const postBody = new URLSearchParams({
+                offset: currentOffset,
+                check_in: checkInInput.value,
+                check_out: checkOutInput.value,
+                guests: guestsInput.value
+            }).toString();
+
             fetch('assets/ajax/load_rooms.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `offset=${currentOffset}&limit=${limit}`
+                body: postBody
             })
-                .then(res => res.text())
-                .then(data => {
-                    if (data.trim() !== "") {
-                        container.insertAdjacentHTML('beforeend', data);
-                        currentOffset += limit;
-                        offsetInput.value = currentOffset;
-                    } else {
-                        window.removeEventListener('scroll', handleRoomScroll);
-                    }
-                })
-                .catch(err => console.error('Error loading rooms:', err))
-                .finally(() => {
-                    isLoading = false;
-                    loadingIndicator.style.display = 'none';
-                });
+            .then(res => res.text())
+            .then(data => {
+                if (data.trim() !== "") {
+                    container.insertAdjacentHTML('beforeend', data);
+                    offsetInput.value = currentOffset;
+                } else {
+                    window.removeEventListener('scroll', handleRoomScroll);
+                }
+            })
+            .catch(err => console.error('Error loading rooms:', err))
+            .finally(() => {
+                isLoading = false;
+                loadingIndicator.style.display = 'none';
+            });
         };
-
-        const handleRoomScroll = () => {
-            const scrollHeight = document.documentElement.scrollHeight;
-            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            const clientHeight = document.documentElement.clientHeight;
-
-            if (scrollTop + clientHeight >= scrollHeight - 1000) {
-                loadMoreRooms();
-            }
-        };
-
-        window.addEventListener('scroll', handleRoomScroll);
-        handleRoomScroll(); // initial load check
     })();
 
     // --- Dynamic Table Loading ---

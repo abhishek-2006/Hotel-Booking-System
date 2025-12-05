@@ -13,6 +13,7 @@
                 <ul>
                     <li><a href="<?= $project_root ?>/index.php">Home</a></li>
                     <li><a href="<?= $project_root ?>/rooms.php">Rooms</a></li>
+                    <li><a href="<?= $project_root ?>/menu.php">Menu</a></li>
                     <li><a href="<?= $project_root ?>/dining.php">Dining</a></li>
                     <li><a href="<?= $project_root ?>/spa.php">Spa</a></li>
                     <li><a href="<?= $project_root ?>/about.php">About Us</a></li>

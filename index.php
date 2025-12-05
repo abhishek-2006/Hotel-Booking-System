@@ -1,6 +1,10 @@
 <?php
 include('includes/config.php'); // Included before header/content
 include('includes/header.php'); // Starts HTML, loads CSS, opens <main>
+if (isset($_SESSION['user_id'])) {
+    header('Location: user/dashboard.php');
+    exit;
+}
 ?>
 
     <section class="hero">
@@ -8,7 +12,7 @@ include('includes/header.php'); // Starts HTML, loads CSS, opens <main>
             <h1>Find Your Perfect Stay</h1>
             <p>Quickly search and secure your accommodation with instant confirmation.</p>
             
-            <form class="search-widget" action="rooms.php" method="GET">
+            <form class="search-widget" action="rooms.php" method="POST">
                 <div class="form-group">
                     <label for="check_in_date" class="sr-only">Check-in</label>
                     <input type="date" id="check_in_date" name="check_in" class="form-control" required>
