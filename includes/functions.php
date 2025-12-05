@@ -9,9 +9,9 @@ function get_food_icon($food_type) {
         case 'Starter':
             return 'fas fa-fire-alt';
         case 'Breakfast':
-            return 'fas fa-egg';
+            return 'fas fa-mug-hot';
         case 'Lunch':
-            return 'fas fa-bowl-food';
+            return 'fas fa-pizza-slice';
         case 'Dinner':
             return 'fas fa-utensils';
         case 'Combo':
