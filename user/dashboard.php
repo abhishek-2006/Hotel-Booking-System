@@ -144,7 +144,12 @@ $history = $history_query->get_result();
 
                         <div class="booking-actions">
                             <a href="<?= $PROJECT_ROOT ?>/user/view_invoice.php?id=<?= $b['booking_id'] ?>" class="btn btn-primary btn-small">View</a>
-                            <a href="<?= $PROJECT_ROOT ?>/bookings/cancel_booking.php?id=<?= $b['booking_id'] ?>" class="btn btn-danger btn-small">Cancel</a>
+                            <a href="<?= $PROJECT_ROOT ?>/bookings/cancel_booking.php?id=<?= $b['booking_id']; ?>"
+                                class="btn btn-danger btn-cancel"
+                                onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                Cancel
+                            </a>
+
                         </div>
                     </div>
                 <?php endwhile; ?>

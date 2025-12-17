@@ -1,12 +1,7 @@
 <?php 
 include('includes/header.php');
-include('includes/config.php'); 
 
 error_reporting(E_ALL);
-
-// Define pagination parameters
-$initial_limit = 4;
-$initial_offset = 0;
 
 // Get total table count for checking when to stop loading
 $count_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM tables");
@@ -17,8 +12,8 @@ $total_tables = mysqli_fetch_assoc($count_query)['total'];
 
     <div class="tables-grid" id="tables-container">
         <?php
-        $query = mysqli_query($conn, "SELECT * FROM tables ORDER BY capacity ASC LIMIT $initial_limit OFFSET $initial_offset");
-        
+        $query = mysqli_query($conn, "SELECT * FROM tables ORDER BY table_id");
+            
         if(mysqli_num_rows($query) > 0){
             while($row = mysqli_fetch_assoc($query)){
                 // Use the ENUM status string directly from the DB
@@ -68,26 +63,6 @@ $total_tables = mysqli_fetch_assoc($count_query)['total'];
         }
         ?>
     </div>
-    
-    <!-- Loading indicator and metadata for JavaScript -->
-    <div class="text-center" id="loading-indicator" style="display:none; margin:20px 0;">
-        <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--color-brand);"></i>
-        <p style="color:var(--color-text-light);">Fetching more tables...</p>
-    </div>
-
-    <!-- Metadata for JavaScript to track state -->
-    <input type="hidden" id="table-offset" value="<?= $initial_limit; ?>">
-    <input type="hidden" id="table-total" value="<?= $total_tables; ?>">
-    <input type="hidden" id="table-limit" value="<?= $initial_limit; ?>">
-    
-    <?php if ($total_tables > $initial_limit): ?>
-    <div class="text-center load-more-container">
-        <button id="load-more-tables-btn" class="btn btn-primary">
-            Load More Tables (<?= $total_tables - $initial_limit; ?> remaining)
-        </button>
-    </div>
-    <?php endif; ?>
-</div>
 
 <!-- Use main.js for general logic, or tables.js for dedicated logic -->
 <script src="assets/js/main.js"></script> 

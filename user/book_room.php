@@ -1,20 +1,42 @@
 <?php
-include('../includes/config.php');
 include('../includes/header.php');
 error_reporting(E_ALL);
+
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['error_message'] = "You must be logged in to book a room.";
+    header('Location: ../auth/login.php');
+    exit;
+}
+
+$room_id = intval($_GET['room_id'] ?? 0);
 if (!isset($_GET['room_id']) || empty($_GET['room_id'])) {
-    echo "<script>alert('No room selected. Please go back and select a room.'); window.location.href='rooms.php';</script>";
+    $_SESSION['error_message'] = "No room selected for booking.";
+    header('Location: ../rooms.php');
     exit();
 }
-$room_id = intval($_GET['room_id']);
-$query = mysqli_query($conn, "SELECT * FROM rooms WHERE room_id = $room_id");
-if (mysqli_num_rows($query) == 0) {
-    echo "<script>alert('Invalid room selected. Please go back and select a valid room.'); window.location.href='rooms.php';</script>";
+
+$check_in_date = $_GET['check_in'] ?? '';
+$check_out_date = $_GET['check_out'] ?? '';
+$guests = intval($_GET['guests'] ?? 1);
+
+$stmt = $conn->prepare("SELECT * FROM rooms WHERE room_id = ?");
+$stmt->bind_param("i", $room_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows == 0) {
+    $_SESSION['error_message'] = "Invalid room selected. Please go back and select a valid room.";
+    header('Location: ' . $PROJECT_ROOT . '/rooms.php');
     exit();
 }
-$room = mysqli_fetch_assoc($query);
-$isAvailable = $room['status'];
-$availabilityText = $isAvailable ? 'Available' : 'Booked';
+$room = $result->fetch_assoc();
+$stmt->close();
+
+$isAvailable = ($room['status'] === 'Available'); // Check ENUM status
+$availabilityText = $room['status'];
+
+$date_check_passed = (!empty($check_in_date) && !empty($check_out_date));
+$can_book = $isAvailable && $date_check_passed;
 ?>
 <div class="container book-room-container">
     <h2 class="page-title text-center">Book Your Room</h2>
@@ -38,7 +60,8 @@ $availabilityText = $isAvailable ? 'Available' : 'Booked';
                 <strong>₹<?= number_format($room['price_per_night']); ?></strong> / night
             </p>
             <?php if ($isAvailable): ?>
-            <form action="confirm_booking.php" method="POST" class="booking-form">
+            <form action="../bookings/bookings_process.php" method="POST" class="booking-form">
+                <input type="hidden" name="action" value="book_room">
                 <input type="hidden" name="room_id" value="<?= $room['room_id']; ?>">
                 <div class="form-group">
                     <label for="check_in">Check-In Date:</label>

@@ -6,7 +6,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 if (strpos($_SERVER['REQUEST_URI'], '/user/') !== false) {
     $currentPage = 'dashboard.php'; // Handle user folder pages
 }
-include('config.php'); 
+include_once 'config.php';
 
 $is_logged_in = isset($_SESSION['user_id']);
 $primary_link_url = $is_logged_in ? "{$project_root}/user/dashboard.php" : "{$project_root}/index.php";
