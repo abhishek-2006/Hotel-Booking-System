@@ -1,6 +1,7 @@
 <?php
 $PROJECT_ROOT = '/Hotel Management system';
 include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/header.php');
+error_reporting(E_ALL);
 
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['error_message'] = "Please login to access your dashboard.";
@@ -170,36 +171,39 @@ $history = $history_query->get_result();
             <h2>Today's Featured Dining</h2>
             <a href="<?= $PROJECT_ROOT ?>/menu.php" class="btn btn-action btn-small">View Full Menu</a>
         </div>
-        
+
         <?php
-        // Fetch a few featured menu items (e.g., 3 random combos or dinners)
-        $featured_query = mysqli_query($conn, "
-            SELECT * FROM food_menu 
-            WHERE food_type IN ('Dinner', 'Combo', 'Dessert') 
-            ORDER BY RAND() LIMIT 3
+        $daily_seed = date('Ymd');
+
+        $featured_query = $conn->query("
+            SELECT * FROM food_menu
+            WHERE food_type IN ('Dinner', 'Combo', 'Dessert', 'Sizzler')
+            ORDER BY CRC32(CONCAT(food_id, '$daily_seed'))
+            LIMIT 3
         ");
-        
-        if (mysqli_num_rows($featured_query) > 0): ?>
+
+        if ($featured_query && $featured_query->num_rows > 0):
+        ?>
             <div class="menu-grid grid-3">
-                <?php while($item = mysqli_fetch_assoc($featured_query)): ?>
-                <div class="menu-item card fade-in-card" style="border-left: 3px solid var(--color-action);">
-                    <div class="item-details">
-                        <!-- Use the icon in the card -->
-                        <p class="text-light" style="font-size:0.8em; margin-bottom:0.1em;">
-                            <i class="<?= get_food_icon($item['food_type']); ?>" style="margin-right:5px;"></i>
-                            <?= htmlspecialchars($item['food_type']); ?>
-                        </p>
-                        <h3><?= htmlspecialchars($item['food_name']); ?></h3>
-                        <span class="item-price">₹<?= number_format($item['price'], 2); ?></span>
+                <?php while ($item = $featured_query->fetch_assoc()): ?>
+                    <div class="menu-item card fade-in-card" style="border-left: 3px solid var(--color-action);">
+                        <div class="item-details">
+                            <p class="text-light" style="font-size:0.8em; margin-bottom:0.1em;">
+                                <i class="<?= get_food_icon($item['food_type']); ?>" style="margin-right:5px;"></i>
+                                <?= htmlspecialchars($item['food_type']); ?>
+                            </p>
+
+                            <h3><?= htmlspecialchars($item['food_name']); ?></h3>
+                            <span class="item-price">₹<?= number_format($item['price'], 2); ?></span>
+                        </div>
                     </div>
-                    <button class="btn btn-primary btn-small">Add</button>
-                </div>
-            <?php endwhile; ?>
+                <?php endwhile; ?>
             </div>
         <?php else: ?>
             <p class="text-light text-center">No featured items available today.</p>
         <?php endif; ?>
     </section>
+
 
     <!-- HISTORY -->
     <section class="history-section mt-5">

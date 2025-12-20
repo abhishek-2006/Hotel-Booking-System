@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 17, 2025 at 09:08 AM
+-- Generation Time: Dec 17, 2025 at 01:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -68,19 +68,20 @@ CREATE TABLE `bookings` (
   `check_out` date DEFAULT NULL,
   `check_in_time` time DEFAULT NULL,
   `check_out_time` time DEFAULT NULL,
-  `food_included` tinyint(1) DEFAULT 0,
+  `food_included` enum('Yes','No') DEFAULT 'No',
   `total_price` decimal(10,2) NOT NULL,
   `status` enum('Pending','Confirmed','Cancelled','Completed') DEFAULT 'Pending',
   `invoice_no` varchar(50) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `rooms_booked` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `bookings`
 --
 
-INSERT INTO `bookings` (`booking_id`, `user_id`, `room_id`, `table_id`, `check_in`, `check_out`, `check_in_time`, `check_out_time`, `food_included`, `total_price`, `status`, `invoice_no`, `created_at`) VALUES
-(1, 2, 4, NULL, '2025-12-17', '2025-12-19', NULL, NULL, 0, 24000.00, 'Cancelled', 'BKG-20251217122439-2', '2025-12-17 06:54:39');
+INSERT INTO `bookings` (`booking_id`, `user_id`, `room_id`, `table_id`, `check_in`, `check_out`, `check_in_time`, `check_out_time`, `food_included`, `total_price`, `status`, `invoice_no`, `created_at`, `rooms_booked`) VALUES
+(1, 2, 4, NULL, '2025-12-17', '2025-12-19', '00:00:00', NULL, '', 24000.00, 'Confirmed', 'BKG-20251217122439-2', '2025-12-17 06:54:39', 1);
 
 -- --------------------------------------------------------
 
@@ -227,26 +228,27 @@ CREATE TABLE `rooms` (
   `description` text DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
   `status` enum('Available','Booked','Maintenance') DEFAULT 'Available',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `total_rooms` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `rooms`
 --
 
-INSERT INTO `rooms` (`room_id`, `room_no`, `room_type`, `ac_type`, `price_per_night`, `capacity`, `description`, `image`, `status`, `created_at`) VALUES
-(1, '1', 'Economy Single Room', 'Non-AC', 3500.00, 2, 'Budget-friendly single room with essential amenities and clean comfort.', 'economy_single.jpg', 'Available', '2025-11-03 07:37:39'),
-(2, '2', 'Twin Standard Room', 'AC', 6500.00, 4, 'Cozy twin-bed setup with full amenities, ideal for families or small groups.', 'twin_standard.jpg', 'Available', '2025-11-03 07:37:39'),
-(3, '3', 'Deluxe King Suite', 'AC', 10000.00, 2, 'Spacious suite with a king bed, city view, and premium bath amenities.', 'deluxe_king.jpg', 'Available', '2025-11-03 07:37:39'),
-(4, '4', 'Business Studio', 'AC', 12000.00, 2, 'Smartly designed for business travelers — work desk, fast WiFi, and privacy.', 'business_studio.jpg', 'Available', '2025-11-03 07:37:39'),
-(5, '5', 'Family Connecting Suite', 'AC', 20000.00, 6, 'Two connected rooms with a shared living area, great for large families.', 'family_suite.jpg', 'Available', '2025-11-03 07:37:39'),
-(6, '6', 'Executive Penthouse', 'AC', 26000.00, 3, 'Luxury penthouse with panoramic views, private balcony, and concierge service.', 'executive_penthouse.jpg', 'Available', '2025-11-03 07:37:39'),
-(7, '7', 'Presidential Suite', 'AC', 45000.00, 4, 'Top-tier suite with a private jacuzzi, dining area, and dedicated butler.', 'presidential_suite.jpg', 'Available', '2025-11-03 07:37:39'),
-(8, '8', 'The Imperial Grand', 'AC', 75000.00, 4, 'Includes private pool, 24/7 butler, and a secured private entrance.', 'imperial_grand.jpg', 'Available', '2025-11-03 07:37:39'),
-(9, '9', 'Midnight Indulgence Suite', 'AC', 85000.00, 2, 'A high-privacy suite with all-night concierge access, curated ambiance, discreet in-room services, and premium entertainment options.', 'midnight_indulgence.jpg', 'Available', '2025-11-03 07:37:39'),
-(10, '10', 'Lifestyle Concierge Suite', 'AC', 95000.00, 2, 'A premium haven with a dedicated lifestyle concierge available round-the-clock for tailored experiences and seamless stay support.', 'lifestyle_concierge.jpg', 'Available', '2025-11-03 07:37:39'),
-(11, '11', 'The Diplomat’s Arrangement', 'AC', 150000.00, 2, 'Reinforced suite with secure elevator access and counter-surveillance systems.', 'diplomat_arrangement.jpg', 'Available', '2025-11-03 07:37:39'),
-(12, '12', 'The Zenith Sovereign', 'AC', 250000.00, 2, 'Pinnacle of luxury: holographic environment, private chef, and daily spa.', 'zenith_sovereign.jpg', 'Available', '2025-11-03 07:37:39');
+INSERT INTO `rooms` (`room_id`, `room_no`, `room_type`, `ac_type`, `price_per_night`, `capacity`, `description`, `image`, `status`, `created_at`, `total_rooms`) VALUES
+(1, '1', 'Economy Single Room', 'Non-AC', 3500.00, 2, 'Budget-friendly single room with essential amenities and clean comfort.', 'economy_single.jpg', 'Available', '2025-11-03 07:37:39', 10),
+(2, '2', 'Twin Standard Room', 'AC', 6500.00, 4, 'Cozy twin-bed setup with full amenities, ideal for families or small groups.', 'twin_standard.jpg', 'Available', '2025-11-03 07:37:39', 10),
+(3, '3', 'Deluxe King Suite', 'AC', 10000.00, 2, 'Spacious suite with a king bed, city view, and premium bath amenities.', 'deluxe_king.jpg', 'Available', '2025-11-03 07:37:39', 10),
+(4, '4', 'Business Studio', 'AC', 12000.00, 2, 'Smartly designed for business travelers — work desk, fast WiFi, and privacy.', 'business_studio.jpg', 'Available', '2025-11-03 07:37:39', 10),
+(5, '5', 'Family Connecting Suite', 'AC', 20000.00, 6, 'Two connected rooms with a shared living area, great for large families.', 'family_suite.jpg', 'Available', '2025-11-03 07:37:39', 10),
+(6, '6', 'Executive Penthouse', 'AC', 26000.00, 3, 'Luxury penthouse with panoramic views, private balcony, and concierge service.', 'executive_penthouse.jpg', 'Available', '2025-11-03 07:37:39', 10),
+(7, '7', 'Presidential Suite', 'AC', 45000.00, 4, 'Top-tier suite with a private jacuzzi, dining area, and dedicated butler.', 'presidential_suite.jpg', 'Available', '2025-11-03 07:37:39', 10),
+(8, '8', 'The Imperial Grand', 'AC', 75000.00, 4, 'Includes private pool, 24/7 butler, and a secured private entrance.', 'imperial_grand.jpg', 'Available', '2025-11-03 07:37:39', 10),
+(9, '9', 'Midnight Indulgence Suite', 'AC', 85000.00, 2, 'A high-privacy suite with all-night concierge access, curated ambiance, discreet in-room services, and premium entertainment options.', 'midnight_indulgence.jpg', 'Available', '2025-11-03 07:37:39', 5),
+(10, '10', 'Lifestyle Concierge Suite', 'AC', 95000.00, 2, 'A premium haven with a dedicated lifestyle concierge available round-the-clock for tailored experiences and seamless stay support.', 'lifestyle_concierge.jpg', 'Available', '2025-11-03 07:37:39', 5),
+(11, '11', 'The Diplomat’s Arrangement', 'AC', 150000.00, 2, 'Reinforced suite with secure elevator access and counter-surveillance systems.', 'diplomat_arrangement.jpg', 'Available', '2025-11-03 07:37:39', 5),
+(12, '12', 'The Zenith Sovereign', 'AC', 250000.00, 2, 'Pinnacle of luxury: holographic environment, private chef, and daily spa.', 'zenith_sovereign.jpg', 'Available', '2025-11-03 07:37:39', 5);
 
 -- --------------------------------------------------------
 

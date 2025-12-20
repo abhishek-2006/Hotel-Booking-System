@@ -24,13 +24,16 @@ $is_home_active = ($currentPage == 'index.php' || ($is_logged_in && $currentPage
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Booking System</title>
     <link rel="stylesheet" href="<?= $project_root ?>/assets/css/styles.css"> 
+    <link rel="icon" type="image/png" href="<?= $project_root ?>/assets/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <header class="main-header">
         <nav class="navbar">
             <div class="logo">
-                <a href="<?= $project_root ?>/index.php">Hotel<span class="logo-accent">Booking</span></a>
+                <a href="<?= $project_root ?>/index.php">
+                    <img src="<?= $project_root ?>/assets/images/logo.png" alt="Hotel Logo">
+                </a>
             </div>
             
             <button class="menu-toggle" aria-label="Toggle navigation menu">

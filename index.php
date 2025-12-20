@@ -1,5 +1,4 @@
 <?php
-include('includes/config.php'); // Included before header/content
 include('includes/header.php'); // Starts HTML, loads CSS, opens <main>
 if (isset($_SESSION['user_id'])) {
     header('Location: user/dashboard.php');
