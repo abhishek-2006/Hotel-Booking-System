@@ -84,7 +84,7 @@ section {
 
 /* Buttons */
 .btn {
-    display: inline-block;
+    display: block;
     padding: 0.8rem 1.7rem;
     border-radius: var(--border-radius-md);
     text-decoration: none;
@@ -389,6 +389,12 @@ section {
 .btn-small:hover {
     transform: none;
     box-shadow: none;
+}
+.forgot-password-link {
+    display: block;
+    margin-top: 0.5rem;
+    text-align: right;
+    color: var(--color-brand);
 }
 
 /* Footer Styles */
@@ -744,7 +750,7 @@ section {
     }
 }
 
-/* --- Overriding Auth Styles for Designer Look --- */
+/* Styles for auth.php */
 
 /* Background Enhancement (Applies to .auth-page) */
 .auth-page {
@@ -756,40 +762,45 @@ section {
 
 /* Auth Container (The main form box) */
 .auth-container {
-    padding: var(--spacing-xl) var(--spacing-lg); /* Increased vertical padding for premium feel */
+    padding: var(--spacing-xl) var(--spacing-lg);
     border-radius: var(--border-radius-md);
-    box-shadow: var(--shadow-pro); /* Deeper shadow */
-    max-width: 430px; /* Slightly wider container */
-    border-left: 5px solid var(--color-brand); /* Highlight left edge */
+    box-shadow: var(--shadow-pro);
+    max-width: 430px;
+    border-left: 5px solid var(--color-brand);
 }
 
 /* Header Styling */
 .auth-header h2 {
     font-family: 'Playfair Display', serif;
-    font-size: 2rem; /* Larger title */
+    font-size: 2rem;
     color: var(--color-brand);
     margin-bottom: var(--spacing-xs);
+    text-align: center;
 }
 .auth-header p {
     color: var(--color-text-light);
     margin-bottom: var(--spacing-lg);
     font-weight: 300;
+    text-align: center;
 }
 
 /* Input Fields */
 .form-group label {
     font-weight: 600;
+    margin-bottom: 0.5rem;
 }
 
 .form-control-icon input {
-    /* Refined border and smooth transition */
+    margin-bottom: 0.5rem;
     border: 1px solid var(--color-border-subtle);
     border-radius: var(--border-radius-sm);
     transition: all 0.3s ease;
 }
 
 .form-control-icon i {
-    color: var(--color-brand); /* Icons match brand color */
+    color: var(--color-brand);
+    margin-bottom: 0.5rem;
+    margin-right: 2px;
 }
 
 .form-control-icon input:focus {
@@ -798,11 +809,9 @@ section {
     box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2); /* Soft blue glow */
 }
 
-/* Action Button (Gradient) */
+/* Action Button */
 .btn-auth-submit {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
     background: var(--color-action); 
     border: none;
     color: white;
@@ -814,7 +823,7 @@ section {
 }
 
 .btn-auth-submit:hover {
-    transform: translateY(-3px); /* Deeper lift on hover */
+    transform: translateY(-3px);
     opacity: 0.95;
     box-shadow: 0 12px 25px rgba(244, 162, 97, 0.6);
 }
@@ -826,7 +835,7 @@ section {
 
 /* Links */
 .auth-footer a {
-    color: var(--color-brand); /* Use warm color for links */
+    color: var(--color-brand);
     font-weight: 600;
     text-decoration: none;
     transition: color 0.2s ease;
@@ -834,9 +843,10 @@ section {
 
 .auth-footer p {
     color: var(--color-text-light);
+    text-align: center;
 }
 
-/* --- Styles for about.php --- */
+/* Styles for about.php */
 
 .about-page-container {
     padding-top: var(--spacing-lg);
@@ -881,7 +891,6 @@ section {
 }
 
 .image-box {
-    /* Placeholder for image styling */
     min-height: 350px;
     background-color: var(--color-bg-page);
     border-radius: var(--border-radius-md);
@@ -889,13 +898,12 @@ section {
 }
 
 .values-grid {
-    /* Reusing grid-3 from main CSS */
     margin-top: var(--spacing-md);
 }
 
 .value-card {
     text-align: center;
-    border-top: 5px solid var(--color-action); /* Highlight */
+    border-top: 5px solid var(--color-action);
 }
 
 .value-card i {
@@ -907,7 +915,7 @@ section {
 /* Responsive adjustments */
 @media (max-width: 900px) {
     .story-content {
-        grid-template-columns: 1fr; /* Stack on smaller screens */
+        grid-template-columns: 1fr;
     }
 }
 
@@ -924,7 +932,6 @@ section {
 }
 
 .grid-main {
-    /* Layout: 60% Form, 40% Info/Map */
     display: grid;
     grid-template-columns: 3fr 2fr; 
     gap: var(--spacing-xl);
@@ -933,7 +940,6 @@ section {
 
 /* Form Area */
 .contact-form-area {
-    /* Inherits card styles */
     height: fit-content;
     box-shadow: var(--shadow-deep);
 }

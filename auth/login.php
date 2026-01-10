@@ -1,7 +1,7 @@
 <?php 
 // Corrected paths for includes using the project root variable
 $PROJECT_ROOT = '/Hotel%20Management%20system';
-include('../includes/header.php'); 
+require('../includes/header.php'); 
 
 // Check if user is already logged in, redirect to dashboard
 if (isset($_SESSION['user_id'])) {
@@ -47,9 +47,10 @@ if (isset($_SESSION['error_message'])) {
                 <i class="fas fa-lock"></i>
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                <a href="auth/forgot_password.php" class="forgot-password-link">Forgot Password?</a>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-auth-submit">
+            <button type="submit" class="btn btn-primary ">
                 LOGIN
             </button>
         </form>
@@ -62,7 +63,4 @@ if (isset($_SESSION['error_message'])) {
         </div>
     </div>
 </div>
-
-<?php 
-include('../includes/footer.php'); 
-?>
+<?php include('../includes/footer.php'); ?>
