@@ -1,102 +1,89 @@
 <?php
-$PROJECT_ROOT = '/Hotel Management system';
-include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/header.php');
-if (!isset($conn)) {
-    include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/config.php');
-}
+include('../includes/config.php');
+session_start();
 error_reporting(E_ALL);
 
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['error_message'] = "Please log in to view your booking history.";
-    header("Location: {$PROJECT_ROOT}/auth/login.php");
-    exit;
+    die("Unauthorized access");
 }
 
-$user_id   = $_SESSION['user_id'];
-$user_name = $_SESSION['full_name'] ?? 'Guest';
+$user_id     = $_SESSION['user_id'];
+$room_id     = (int) $_POST['room_id'];
+$check_in    = $_POST['check_in'];
+$check_out   = $_POST['check_out'];
+$num_rooms   = (int) ($_POST['num_rooms'] ?? 1);
+
+if (!$room_id || !$check_in || !$check_out || $num_rooms < 1) {
+    die("Invalid booking data");
+}
 
 $stmt = $conn->prepare("
-    SELECT 
-        b.booking_id, b.check_in, b.check_out, b.status, b.total_price,
-        r.room_type, r.room_no,
-        t.table_no
-    FROM bookings b
-    LEFT JOIN rooms r ON b.room_id = r.room_id
-    LEFT JOIN tables_list t ON b.table_id = t.table_id
-    WHERE b.user_id = ?
-    ORDER BY b.booking_id DESC
+    SELECT room_type, price_per_night 
+    FROM rooms 
+    WHERE room_id = ? AND status = 'Available'
 ");
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("i", $room_id);
+$stmt->execute();
+$roomData = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$roomData) {
+    die("Room not available");
+}
+
+$room_type = $roomData['room_type'];
+$price     = $roomData['price_per_night'];
+
+$stmt = $conn->prepare("
+    SELECT room_id 
+    FROM rooms 
+    WHERE room_type = ?
+    AND status = 'Available'
+    AND room_id NOT IN (
+        SELECT room_id FROM bookings
+        WHERE status IN ('Confirmed','Pending')
+        AND check_in < ?
+        AND check_out > ?
+    )
+    LIMIT ?
+");
+$stmt->bind_param("sssi", $room_type, $check_out, $check_in, $num_rooms);
 $stmt->execute();
 $result = $stmt->get_result();
-?>
 
-<div class="container dashboard-page-container">
+if ($result->num_rows < $num_rooms) {
+    die("Not enough rooms available");
+}
 
-    <div class="dashboard-header">
-        <h1><?= htmlspecialchars($user_name); ?>’s Bookings</h1>
-        <p class="lead-text">View, manage, and track all your reservations.</p>
-    </div>
+$nights = (strtotime($check_out) - strtotime($check_in)) / (60 * 60 * 24);
+$total_price = $nights * $price;
 
-    <?php if ($result->num_rows > 0): ?>
-        <div class="booking-history-grid grid-3">
+$conn->begin_transaction();
 
-        <?php while ($b = $result->fetch_assoc()): ?>
-            <div class="booking-card card">
+try {
+    while ($r = $result->fetch_assoc()) {
+        $insert = $conn->prepare("
+            INSERT INTO bookings 
+            (user_id, room_id, check_in, check_out, total_price, status)
+            VALUES (?, ?, ?, ?, ?, 'Confirmed')
+        ");
+        $insert->bind_param(
+            "iissd",
+            $user_id,
+            $r['room_id'],
+            $check_in,
+            $check_out,
+            $total_price
+        );
+        $insert->execute();
+    }
 
-                <h3>
-                    <i class="fas <?= $b['room_type'] ? 'fa-bed' : 'fa-utensils'; ?>"></i>
-                    <?= $b['room_type']
-                        ? htmlspecialchars($b['room_type']) . " (Room " . htmlspecialchars($b['room_no']) . ")"
-                        : "Table " . htmlspecialchars($b['table_no']); ?>
-                </h3>
+    $conn->commit();
+    header("Location: ../user/my_bookings.php");
+    exit;
 
-                <p>
-                    <strong>ID:</strong> #<?= $b['booking_id']; ?><br>
-                    <strong>Status:</strong>
-                    <span class="status status-<?= strtolower($b['status']); ?>">
-                        <?= htmlspecialchars($b['status']); ?>
-                    </span>
-                </p>
-
-                <p>
-                    <?php if ($b['check_out']): ?>
-                        <?= date('M d, Y', strtotime($b['check_in'])); ?>
-                        → <?= date('M d, Y', strtotime($b['check_out'])); ?>
-                    <?php else: ?>
-                        <?= date('M d, Y', strtotime($b['check_in'])); ?>
-                    <?php endif; ?>
-                </p>
-
-                <p class="price-display">₹<?= number_format($b['total_price'], 2); ?></p>
-
-                <div class="booking-actions">
-                    <a href="<?= $PROJECT_ROOT ?>/user/view_invoice.php?id=<?= $b['booking_id']; ?>"
-                       class="btn btn-primary btn-small">Invoice</a>
-
-                    <?php if ($b['status'] === 'Confirmed'): ?>
-                        <form method="POST" action="cancel_booking.php"
-                              onsubmit="return confirm('Cancel this booking?');">
-                            <input type="hidden" name="booking_id" value="<?= $b['booking_id']; ?>">
-                            <button class="btn btn-danger btn-small">Cancel</button>
-                        </form>
-                    <?php endif; ?>
-                </div>
-
-            </div>
-        <?php endwhile; ?>
-
-        </div>
-    <?php else: ?>
-        <div class="empty-state-card card text-center">
-            <p>No bookings found.</p>
-            <a href="<?= $PROJECT_ROOT ?>/rooms.php" class="btn btn-action">Book Now</a>
-        </div>
-    <?php endif; ?>
-
-</div>
-
-<?php
-$stmt->close();
-include($_SERVER['DOCUMENT_ROOT'] . $PROJECT_ROOT . '/includes/footer.php');
+} catch (Exception $e) {
+    $conn->rollback();
+    die("Booking failed. Try again.");
+}
 ?>

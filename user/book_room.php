@@ -8,18 +8,19 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$room_id = intval($_POST['room_id'] ?? 0);
+$room_id = (int)$_POST['room_id'];
 if (!isset($_POST['room_id']) || empty($_POST['room_id'])) {
     $_SESSION['error_message'] = "No room selected for booking.";
     header('Location: ../rooms.php');
     exit();
 }
 
+$user_id  = $_SESSION['user_id'];
 $check_in_date = $_POST['check_in'] ?? '';
 $check_out_date = $_POST['check_out'] ?? '';
 $guests = intval($_POST['guests'] ?? 1);
 
-$stmt = $conn->prepare("SELECT * FROM rooms WHERE room_id = ?");
+$stmt = $conn->prepare("SELECT * FROM rooms WHERE room_id = ? AND status = 'Available'  ");
 $stmt->bind_param("i", $room_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -32,7 +33,7 @@ if ($result->num_rows == 0) {
 $room = $result->fetch_assoc();
 $stmt->close();
 
-$isAvailable = ($room['status'] === 'Available'); // Check ENUM status
+$isAvailable = ($room['status'] === 'Available');
 $availabilityText = $room['status'];
 
 $date_check_passed = (!empty($check_in_date) && !empty($check_out_date));
@@ -77,21 +78,22 @@ $can_book = $isAvailable && $date_check_passed;
             <!-- Booking Form -->
             <form action="../bookings/bookings_process.php" method="POST" class="booking-form modern-form">
                 <input type="hidden" name="room_id" value="<?= $room['room_id']; ?>">
+                <input type="hidden" name="guests" value="<?= $guests ?>">
 
                 <div class="date-grid">
                     <div class="form-group">
                         <label for="check_in">Check-In</label>
-                        <input type="date" id="check_in" name="check_in" required>
+                        <input type="date" id="check_in" name="check_in" value="<?= htmlspecialchars($check_in_date) ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="check_out">Check-Out</label>
-                        <input type="date" id="check_out" name="check_out" required>
+                        <input type="date" id="check_out" name="check_out" value="<?= htmlspecialchars($check_out_date) ?>" required>
                     </div>
 
                     <div class="form-group rooms-count-group">
                         <label for="num_rooms">Number of Rooms</label>
-                        <input type="number" id="num_rooms" name="num_rooms" value="1" min="1" max="<?= $room['capacity']; ?>" required>
+                        <input type="number" id="num_rooms" name="num_rooms" value="1" min="1" max="<?= $room['total_rooms']; ?>" required>
                     </div>
                 </div>
 

@@ -3,7 +3,7 @@ $PROJECT_ROOT = '/Hotel%20Management%20system';
 include('includes/header.php');
 error_reporting(E_ALL);
 
-// ------------------ 1. INPUT (POST ONLY) ------------------
+// 1. INPUT (POST ONLY)
 $check_in  = $_POST['check_in']  ?? date('Y-m-d');
 $check_out = $_POST['check_out'] ?? date('Y-m-d', strtotime('+1 day'));
 $guests    = max(1, (int)($_POST['guests'] ?? 1));
@@ -12,7 +12,7 @@ $rooms_req = max(1, (int)($_POST['rooms'] ?? 1));
 $check_in  = mysqli_real_escape_string($conn, $check_in);
 $check_out = mysqli_real_escape_string($conn, $check_out);
 
-// ------------------ 2. MAIN QUERY ------------------
+// 2. MAIN QUERY
 $query_sql = "
 SELECT 
     r.*,
@@ -52,7 +52,7 @@ if (!$result) {
         </span>
     </h2>
 
-    <!-- ------------------ SEARCH BAR ------------------ -->
+    <!-- SEARCH BAR -->
     <form class="search-widget modern-search-widget" action="rooms.php" method="POST">
         <div class="search-grid">
 
@@ -89,7 +89,7 @@ if (!$result) {
         </div>
     </form>
 
-    <!-- ------------------ ROOMS GRID ------------------ -->
+    <!-- ROOMS GRID -->
     <div class="rooms-grid">
 
         <?php if (mysqli_num_rows($result) > 0): 
@@ -104,7 +104,7 @@ if (!$result) {
             <div class="room-image-wrapper">
                 <img 
                     src="<?= $PROJECT_ROOT ?>/assets/images/rooms/<?= htmlspecialchars($row['image']); ?>" 
-                    alt="<?= htmlspecialchars($row['room_type']); ?>Room Image" class="room-image">
+                    alt="<?= htmlspecialchars($row['room_type']); ?> Room Image" class="room-image">
 
                 <span class="room-status">
                     <?= $available_rooms ?> rooms left

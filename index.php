@@ -1,5 +1,5 @@
 <?php
-include('includes/header.php'); // Starts HTML, loads CSS, opens <main>
+include('includes/header.php');
 if (isset($_SESSION['user_id'])) {
     header('Location: user/dashboard.php');
     exit;

@@ -38,14 +38,14 @@ if (isset($_SESSION['error_message'])) {
             <input type="hidden" name="action" value="login">
 
             <div class="form-group form-control-icon">
-                <label for="email">Email Address</label>
                 <i class="fas fa-envelope"></i>
+                <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="your.email@example.com" required>
             </div>
 
             <div class="form-group form-control-icon">
-                <label for="password">Password</label>
                 <i class="fas fa-lock"></i>
+                <label for="password">Password</label>
                 <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
             </div>
 
@@ -55,7 +55,6 @@ if (isset($_SESSION['error_message'])) {
         </form>
 
         <div class="auth-footer">
-            <a href="forgot_password.php">Forgot Password?</a>
             <p>
                 Don't have an account? 
                 <a href="register.php">Create one now.</a>

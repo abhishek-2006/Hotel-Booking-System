@@ -6,7 +6,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 if (strpos($_SERVER['REQUEST_URI'], '/user/') !== false) {
     $currentPage = 'dashboard.php'; // Handle user folder pages
 }
-include_once 'config.php';
+require 'config.php';
 
 $is_logged_in = isset($_SESSION['user_id']);
 $primary_link_url = $is_logged_in ? "{$project_root}/user/dashboard.php" : "{$project_root}/index.php";
@@ -65,7 +65,7 @@ $is_home_active = ($currentPage == 'index.php' || ($is_logged_in && $currentPage
                 
                 <?php if($is_logged_in): ?>
                     <li class="auth-link">
-                        <a href="<?= $project_root ?>/auth/logout.php" class="btn-link">Logout</a>
+                        <a href="<?= $project_root ?>/auth/logout.php" class="btn-link btn-primary">Logout</a>
                     </li>
                 <?php else: ?>
                     <li class="auth-link">

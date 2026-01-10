@@ -1,5 +1,4 @@
 <?php 
-// Corrected paths for includes using the project root variable
 $PROJECT_ROOT = 'Hotel%20Management%20system'; 
 include('../includes/header.php'); 
 ?>
